@@ -1,6 +1,7 @@
 const cluster = require('cluster');
 const http = require('http');
 const numCPUs = require('os').cpus().length;
+let requestsCount = 0;
 
 if (cluster.isMaster) {
     console.log(`Master ${process.pid} is running`);
@@ -19,8 +20,12 @@ if (cluster.isMaster) {
     http.createServer((req, res) => {
         res.writeHead(200);
         res.end('hello world\n');
-        console.log(`hello world on ${process.pid}`);
+        requestsCount++;
     }).listen(8000);
+
+    setInterval(() => {
+        console.log(`${new Date().toISOString()} : Worker ${process.pid} handled ${requestsCount} requests...`)
+    }, 5000)
 
     console.log(`Worker ${process.pid} started`);
 }
