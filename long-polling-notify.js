@@ -1,6 +1,7 @@
 const http = require('http');
 
-const postData = process.argv[1]
+const postData = process.argv[2];
+console.log(`Will send notification: ${postData}`);
 
 const options = {
     hostname: 'localhost',
