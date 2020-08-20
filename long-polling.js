@@ -8,10 +8,11 @@ const subscribers = [];
 
 // POST http://localhost:8000/notification
 app.post('/notification', (req, res) => {
-    console.log(`Sending notification:`, req.body);
+    const message = req.body.message;
+    console.log(`Sending notification:`, message);
     subscribers
         .filter(sub => !(sub.res.headersSent))
-        .forEach(sub => sub.res.send(req.body.message).end());
+        .forEach(sub => sub.res.type('text').send(message));
     subscribers.length = 0;
     res.sendStatus(200);
 });

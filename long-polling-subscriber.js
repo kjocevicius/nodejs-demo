@@ -31,7 +31,7 @@ function subscribe() {
                 console.error(`${resp.status}: ${resp.statusMessage}`);
                 setTimeout(() => subscribe(), 1000);
             } else {
-                console.log(`${process.pid}: Got message: ${resp.data.data}`);
+                console.log(`${process.pid}: Got message: ${resp.data}`);
                 subscribe();
             }
         }).catch(e => {
