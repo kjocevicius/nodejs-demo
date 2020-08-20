@@ -1,15 +1,17 @@
 const express = require('express');
+const bodyParser = require('body-parser').json();
 
 const app = express();
+app.use(bodyParser);
 
 const subscribers = [];
 
 // POST http://localhost:8000/notification
 app.post('/notification', (req, res) => {
-    console.log(`Sending notification: ${req.body}`);
+    console.log(`Sending notification:`, req.body);
     subscribers
         .filter(sub => !(sub.res.headersSent))
-        .forEach(sub => sub.res.sendStatus(200).send(req.body));
+        .forEach(sub => sub.res.send(req.body.message).end());
     subscribers.length = 0;
     res.sendStatus(200);
 });

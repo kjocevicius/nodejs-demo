@@ -1,6 +1,6 @@
 const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
-const http = require('http');
+const axios = require('axios').default;
 
 if (cluster.isMaster) {
     console.log(`Master ${process.pid} is running`);
@@ -20,23 +20,24 @@ if (cluster.isMaster) {
 
 function subscribe() {
 
-    http.get('http://localhost:8000/notification', (resp) => {
-        console.log(`${process.pid}: subscribed!`);
+    axios.get('http://localhost:8000/notification')
+        .then(resp => {
+            resp.status
 
-        if (resp.statusCode === 502) {
-            // Connection timeout - lets resubscribe!
-            subscribe();
-        } else if (resp.statusCode !== 200) {
-            console.error(`${resp.statusCode}: ${resp.statusMessage}`);
+            if (resp.status === 502) {
+                // Connection timeout - lets resubscribe!
+                subscribe();
+            } else if (resp.status !== 200) {
+                console.error(`${resp.status}: ${resp.statusMessage}`);
+                setTimeout(() => subscribe(), 1000);
+            } else {
+                console.log(`${process.pid}: Got message: ${resp.data.data}`);
+                subscribe();
+            }
+        }).catch(e => {
+            console.error(e.code);
             setTimeout(() => subscribe(), 1000);
-        } else {
-            resp.on('data', (chunk) => console.log(`${process.pid}: Got message: ${chunk}`));
-            subscribe();
-        }
-
-    }).on('error', (e) => {
-        console.error(`${process.pid}: Error`);
-        setTimeout(() => subscribe(), 1000);
-    });
+        });
+    console.log(`${process.pid}: subscribed!`);
 
 }
